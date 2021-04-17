@@ -31,7 +31,9 @@ namespace Game
 		bool is_left_mouse_clicked  = false;
 		bool has_been_generated = false;
 		bool game_over = false;
+		bool has_won = false;
 
+		uint16_t opened_cell_count = 0;
 		int cells_flagged = 0;
 
 		SDL_Rect cell_clips[11];
@@ -73,6 +75,9 @@ namespace Game
 
 		void DoGameOver(SDL_Point mine_position);
 		void DoGameReset(void);
+		void FlagUnopenedCells(void);
+		
+		bool PlayerHasWon(void);
 
 	public:
 		Minefield(void);

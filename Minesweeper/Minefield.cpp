@@ -91,9 +91,16 @@ void Game::Minefield::SetPositionInWindow(const SDL_Point point)
 
 void Game::Minefield::Update(void)
 {
-	if (!game_over)
+	if (!game_over && !has_won)
 	{
 		HandleMouseClick();
+
+		has_won = PlayerHasWon();
+
+		if (has_won)
+		{
+			FlagUnopenedCells();
+		}
 
 		if (has_been_generated)
 		{
@@ -185,6 +192,7 @@ void Game::Minefield::OpenCell(signed short row, signed short column)
 
 	if (!cell.is_flagged && !cell.is_opened)
 	{
+		++opened_cell_count;
 		cell.is_opened = true;
 
 		if (cell.value == EMPTY)
@@ -333,6 +341,9 @@ void Game::Minefield::HandleButtonState(void)
 	if (game_over)
 		button->SetClip({ 100, 1, 24, 24 });
 
+	if (has_won)
+		button->SetClip({ 75, 1, 24, 24 });
+
 	HandleButtonClick();
 	HandleButtonOnCellClick();
 }
@@ -359,7 +370,7 @@ void Game::Minefield::HandleButtonClick(void)
 	{
 		button->SetClip({ 25, 1, 24, 24 });
 	}
-	else if (!game_over)
+	else if (!game_over && !has_won)
 	{
 		button->SetClip({ 0, 1, 24, 24 });
 	}
@@ -379,6 +390,8 @@ void Game::Minefield::DoGameReset(void)
 {
 	game_over = false;
 	has_been_generated = false;
+	has_won = false;
+	opened_cell_count = 0;
 	cells_flagged = 0;
 	timer.Reset();
 	timer.Stop();
@@ -401,4 +414,23 @@ int Game::Minefield::GetFlaggedCellsCount(void) const
 void Game::Minefield::RegisterTimerDisplay(NumberDisplay* timerDisplay)
 {
 	this->timerDisplay = timerDisplay;
+}
+
+bool Game::Minefield::PlayerHasWon(void)
+{
+	return opened_cell_count == MINEFIELD_COLUMNS * MINEFIELD_ROWS - MINE_COUNT;
+}
+
+void Game::Minefield::FlagUnopenedCells(void)
+{
+	for (uint16_t row = 0; row < MINEFIELD_ROWS; ++row)
+	{
+		for (uint16_t column = 0; column < MINEFIELD_COLUMNS; ++column)
+		{
+			if (!cells[row][column].is_opened)
+			{
+				cells[row][column].is_flagged = true;
+			}
+		}
+	}
 }
