@@ -66,18 +66,13 @@ Game::Application::~Application(void) noexcept
 
 	SDL_Quit();
 	IMG_Quit();
-	TTF_Quit();
-	Mix_Quit();
-	Mix_CloseAudio();
 }
 
 void Game::Application::Initialize(void)
 {
 	InitializeSDL();
 	InitializeIMG();
-	InitializeAudio();
-	InitializeFonts();
-	
+
 	CreateWindow();
 	CreateRenderer();
 
@@ -102,19 +97,6 @@ void Game::Application::InitializeIMG(void)
 {
 	if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
 		ThrowErrorUsingSDLMessage("SDL_image could not initialize! IMG_Erro: ", IMG_GetError());
-}
-
-void Game::Application::InitializeAudio(void)
-{
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
-		ThrowErrorUsingSDLMessage("SDL_mixer could not initialize! Mix_Error: ", Mix_GetError());
-}
-
-void Game::Application::InitializeFonts(void)
-{
-	constexpr int FAILED = -1;
-	if (TTF_Init() == FAILED)
-		ThrowErrorUsingSDLMessage("SDL_ttf could not initialize! TTF_Error:", TTF_GetError());
 }
 
 void Game::Application::CreateWindow(void)

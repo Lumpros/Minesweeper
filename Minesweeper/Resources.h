@@ -4,9 +4,7 @@
 #include <string>
 #include <memory>
 
-#include "Text.h"
 #include "Texture.h"
-#include "Sound.h"
 
 namespace Game
 {
@@ -54,9 +52,6 @@ namespace Game
 
 	public:
 		ResourceHolder<Texture> gTextures;
-		ResourceHolder<Font>    gFonts;
-		ResourceHolder<SFX>     gSFX;
-		ResourceHolder<Music>   gMusic;
 	};
 }
 

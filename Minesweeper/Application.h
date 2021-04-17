@@ -2,15 +2,12 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <SDL_mixer.h>
 
 #include <cstdio>
 #include <ctime>
 
 #include "Texture.h"
 #include "Preprocessors.h"
-#include "Sound.h"
 #include "Resources.h"
 #include "Exception.h"
 #include "Minefield.h"
@@ -41,8 +38,6 @@ namespace Game
 
 		void InitializeSDL(void);
 		void InitializeIMG(void);
-		void InitializeAudio(void);
-		void InitializeFonts(void);
 		void CreateWindow(void);
 		void CreateRenderer(void);
 
