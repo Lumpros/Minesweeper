@@ -174,9 +174,13 @@ void Game::Minefield::DoGameOver(SDL_Point mine_position)
 		for (uint16_t j = 0; j < MINEFIELD_COLUMNS; ++j)
 		{
 			if (cells[i][j].is_flagged && cells[i][j].value != MINE)
+			{
 				cells[i][j].value = FALSE_FLAG;
+				cells[i][j].is_opened = true;
+			}
 
-			cells[i][j].is_opened = true;
+			else if (cells[i][j].value == MINE)
+				cells[i][j].is_opened = true;
 		}
 	}
 }
