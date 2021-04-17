@@ -4,28 +4,32 @@
 #include "Resources.h"
 #include "Renderer.h"
 
-#define FALSE_FLAG 10
-#define MINE 9
 #define EMPTY 0
+#define MINE 9
+#define FALSE_FLAG 10
 
-void Game::Minefield::GenerateMinefield(const uint32_t mine_count)
+void Game::Minefield::GenerateMinefield(const uint32_t mine_count, SDL_Point clicked_cell)
 {
 	if (mine_count > MINEFIELD_COLUMNS * MINEFIELD_ROWS / 2)
 		throw std::exception("Mine count exceeds the minefield limit!");
 
 	MakeAllCellsEmpty();
-	GenerateMines(mine_count);
+	GenerateMines(mine_count, clicked_cell);
 	GenerateCellHints();
 }
 
 void Game::Minefield::MakeAllCellsEmpty(void)
 {
 	for (uint32_t row = 0; row < MINEFIELD_ROWS; ++row)
+	{
 		for (uint32_t column = 0; column < MINEFIELD_COLUMNS; ++column)
+		{
 			cells[row][column].value = EMPTY;
+		}
+	}
 }
 
-void Game::Minefield::GenerateMines(const uint32_t mine_count)
+void Game::Minefield::GenerateMines(const uint32_t mine_count, SDL_Point clicked_cell)
 {
 	for (uint32_t i = 0; i < mine_count; ++i)
 	{
@@ -34,10 +38,14 @@ void Game::Minefield::GenerateMines(const uint32_t mine_count)
 			uint16_t row = RNG::RandUInt16(0, MINEFIELD_ROWS - 1);
 			uint16_t column = RNG::RandUInt16(0, MINEFIELD_COLUMNS - 1);
 
-			if (cells[row][column].value != MINE)
+			// Make at least a 3x3 area around the first opened cell empty
+			if (abs(clicked_cell.x - row) > 1 || abs(clicked_cell.y - column) > 1)
 			{
-				cells[row][column].value = MINE;
-				break;
+				if (cells[row][column].value != MINE)
+				{
+					cells[row][column].value = MINE;
+					break;
+				}
 			}
 		}
 	}
@@ -85,6 +93,7 @@ void Game::Minefield::Update(void)
 {
 	if (!game_over)
 		HandleMouseClick();
+	HandleButtonState();
 	Renderer::Get()->SubmitToRender(this);
 }
 
@@ -111,6 +120,12 @@ void Game::Minefield::HandleLeftMouseClick(Uint32 mouse_state, SDL_Point mouse_p
 
 		if (!CellCoordinatesOutOfBounds(clicked_cell_point.x, clicked_cell_point.y))
 		{
+			if (!has_been_generated)
+			{
+				GenerateMinefield(MINE_COUNT, clicked_cell_point);
+				has_been_generated = true;
+			}
+
 			Cell& clicked_cell = cells[clicked_cell_point.x][clicked_cell_point.y];
 
 			if (!clicked_cell.is_flagged)
@@ -210,6 +225,8 @@ void Game::Minefield::Render(void)
 		SDL_Rect clip = { 102, 1, 16, 16 };
 		cells_texture->Render(game_over_mine, &clip);
 	}
+
+	button->Render();
 }
 
 void Game::Minefield::RenderMinefieldCells(void)
@@ -271,7 +288,6 @@ SDL_Rect Game::Minefield::CalculateCellWindowRect(uint16_t row, uint16_t column)
 
 Game::Minefield::Minefield(void)
 {
-	GenerateMinefield(99);
 	z_index = -1;
 	field_texture = Resources::Get()->gTextures.Get("field");
 	cells_texture = Resources::Get()->gTextures.Get("cells");
@@ -286,7 +302,68 @@ void Game::Minefield::InitializeCellClips(void)
 	cell_clips[FALSE_FLAG] = { 119, 1, 16, 16 };
 
 	for (int i = 1; i <= 8; ++i)
-		cell_clips[i] = { 16 * (i - 1) + i - 1, 18, 16, 16 };
+		cell_clips[i] = { 16 * (i - 1) + i - 1, 18, 16, 16 };	
+}
 
-	
+void Game::Minefield::HandleButtonState(void)
+{
+	button->Update();
+
+	if (game_over)
+		button->SetClip({ 100, 1, 24, 24 });
+
+	HandleButtonClick();
+	HandleButtonOnCellClick();
+}
+
+void Game::Minefield::HandleButtonOnCellClick(void)
+{
+	SDL_Point mouse_pos;
+	SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
+	SDL_Point clicked_cell = GetClickedCell(mouse_pos);
+
+	if (is_left_mouse_clicked && !CellCoordinatesOutOfBounds(clicked_cell.x, clicked_cell.y))
+	{
+		if (!cells[clicked_cell.x][clicked_cell.y].is_opened)
+		{
+			button->SetClip({ 50, 1, 24, 24 });
+		}
+	}
+}
+
+void Game::Minefield::HandleButtonClick(void)
+{
+	if (button->IsHeldDown())
+	{
+		button->SetClip({ 25, 1, 24, 24 });
+	}
+	else if (!game_over)
+	{
+		button->SetClip({ 0, 1, 24, 24 });
+	}
+
+	if (button->IsClicked())
+	{
+		DoGameReset();
+	}
+}
+
+void Game::Minefield::RegisterResetButton(Button* button)
+{
+	this->button = button;
+}
+
+void Game::Minefield::DoGameReset(void)
+{
+	game_over = false;
+	has_been_generated = false;
+
+	for (uint16_t row = 0; row < MINEFIELD_ROWS; ++row)
+	{
+		for (uint16_t column = 0; column < MINEFIELD_COLUMNS; ++column)
+		{
+			cells[row][column].is_flagged = false;
+			cells[row][column].is_opened  = false;
+		}
+	}
 }

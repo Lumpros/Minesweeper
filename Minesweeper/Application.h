@@ -14,6 +14,7 @@
 #include "Resources.h"
 #include "Exception.h"
 #include "Minefield.h"
+#include "Button.h"
 
 namespace Game
 {
@@ -22,6 +23,7 @@ namespace Game
 	private:
 		SDL_Window* mWindow = nullptr;
 		Minefield* minefield = nullptr;
+		Button* reset_button = nullptr;
 
 	private:
 		void Update(void) const noexcept;
@@ -30,6 +32,8 @@ namespace Game
 		void LoadResources(void) const noexcept;
 
 		void CapFramerate(clock_t clock_before_frame);
+
+		void InitializeGameplayRelated(void);
 
 		void InitializeSDL(void);
 		void InitializeIMG(void);

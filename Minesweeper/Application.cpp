@@ -25,6 +25,7 @@ void Game::Application::Loop(void) noexcept
 
 void Game::Application::Update(void) const noexcept
 {
+
 	minefield->Update();
 }
 
@@ -45,11 +46,13 @@ void Game::Application::LoadResources(void) const noexcept
 	Resources* resources = Resources::Get();
 
 	resources->gTextures.Add("cells", new Texture("Media/cells.png"));
+	resources->gTextures.Add("button", new Texture("Media/button.png"));
 	resources->gTextures.Add("field", new Texture("Media/field.png"));
 }
 
 Game::Application::~Application(void) noexcept
 {
+	delete reset_button;
 	delete minefield;
 
 	Resources::Get()->ReleaseResources();
@@ -76,8 +79,7 @@ void Game::Application::Initialize(void)
 
 	LoadResources();
 
-	minefield = new Minefield();
-	minefield->SetPositionInWindow(SDL_Point { 24, 110 });
+	InitializeGameplayRelated();
 
 	SDL_ShowWindow(mWindow);
 }
@@ -131,4 +133,18 @@ void Game::Application::CreateRenderer(void)
 	gRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (!gRenderer)
 		ThrowErrorUsingSDLMessage("Failed to create renderer! SDL_Error: ", SDL_GetError());
+}
+
+void Game::Application::InitializeGameplayRelated(void)
+{
+	SDL_Rect button_position = {
+		WINDOW_WIDTH / 2 - 48 / 2,
+		30, 48, 48,
+	};
+
+	reset_button = new Button({ 0, 1, 24, 24 }, button_position, 1.0f);
+
+	minefield = new Minefield();
+	minefield->SetPositionInWindow(SDL_Point{ 24, 110 });
+	minefield->RegisterResetButton(reset_button);
 }
