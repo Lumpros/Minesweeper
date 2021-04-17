@@ -92,8 +92,20 @@ void Game::Minefield::SetPositionInWindow(const SDL_Point point)
 void Game::Minefield::Update(void)
 {
 	if (!game_over)
+	{
 		HandleMouseClick();
+
+		if (has_been_generated)
+		{
+			timer.Update();
+		}
+	}
+
 	HandleButtonState();
+
+	timerDisplay->SetValue(timer.GetTotalSecondsPassed());
+	timerDisplay->Update();
+
 	Renderer::Get()->SubmitToRender(this);
 }
 
@@ -123,6 +135,7 @@ void Game::Minefield::HandleLeftMouseClick(Uint32 mouse_state, SDL_Point mouse_p
 			if (!has_been_generated)
 			{
 				GenerateMinefield(MINE_COUNT, clicked_cell_point);
+				timer.Start();
 				has_been_generated = true;
 			}
 
@@ -194,8 +207,16 @@ void Game::Minefield::HandleRightMouseClick(Uint32 mouse_state, SDL_Point mouse_
 		SDL_Point clicked_cell = GetClickedCell(mouse_pos);
 		is_right_mouse_clicked = true;
 
+		Cell& cell = cells[clicked_cell.x][clicked_cell.y];
+
 		if (!CellCoordinatesOutOfBounds(clicked_cell.x, clicked_cell.y))
-			cells[clicked_cell.x][clicked_cell.y].is_flagged ^= true; //lol
+		{
+			if (!cell.is_opened)
+			{
+				cell.is_flagged = !cell.is_flagged;
+				cells_flagged += cell.is_flagged ? 1 : -1;
+			}
+		}
 	}
 
 	else if (!(mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) && is_right_mouse_clicked)
@@ -324,7 +345,8 @@ void Game::Minefield::HandleButtonOnCellClick(void)
 
 	if (is_left_mouse_clicked && !CellCoordinatesOutOfBounds(clicked_cell.x, clicked_cell.y))
 	{
-		if (!cells[clicked_cell.x][clicked_cell.y].is_opened)
+		if (!cells[clicked_cell.x][clicked_cell.y].is_opened && 
+			!cells[clicked_cell.x][clicked_cell.y].is_flagged)
 		{
 			button->SetClip({ 50, 1, 24, 24 });
 		}
@@ -357,6 +379,9 @@ void Game::Minefield::DoGameReset(void)
 {
 	game_over = false;
 	has_been_generated = false;
+	cells_flagged = 0;
+	timer.Reset();
+	timer.Stop();
 
 	for (uint16_t row = 0; row < MINEFIELD_ROWS; ++row)
 	{
@@ -366,4 +391,14 @@ void Game::Minefield::DoGameReset(void)
 			cells[row][column].is_opened  = false;
 		}
 	}
+}
+
+int Game::Minefield::GetFlaggedCellsCount(void) const
+{
+	return cells_flagged;
+}
+
+void Game::Minefield::RegisterTimerDisplay(NumberDisplay* timerDisplay)
+{
+	this->timerDisplay = timerDisplay;
 }

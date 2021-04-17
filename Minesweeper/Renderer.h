@@ -1,7 +1,8 @@
 #pragma once
 
 #include <SDL.h>
-#include <vector>
+#include <queue>
+#include <functional>
 
 #include "Entity.h"
 
@@ -9,19 +10,21 @@ namespace Game
 {
 	extern SDL_Renderer* gRenderer;
 
-	typedef std::vector<Renderable*> RenderContainer;
+	bool RenderableComparison(Renderable* a, Renderable* b);
 
 	class Renderer
 	{
 	private:
-		RenderContainer submitted_to_render;
 		SDL_Color clear_color = { 0x00, 0x00, 0x00, 0xFF };
 		signed int render_container_size = 0;
 
-		Renderer(void) = default;
+		std::priority_queue <
+			Renderable*,
+			std::vector<Renderable*>,
+			std::function<bool(Renderable*, Renderable*)>
+		> submitted_to_render;
 
-		void InsertRenderableToAppropriatePosition(Renderable*);
-		signed int CalculatePositionInOrderToBeSorted(Renderable*);
+		Renderer(void) : submitted_to_render(RenderableComparison) {}
 
 	public:
 		void SubmitToRender(Renderable* pRenderable);

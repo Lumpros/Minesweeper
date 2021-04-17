@@ -25,8 +25,9 @@ void Game::Application::Loop(void) noexcept
 
 void Game::Application::Update(void) const noexcept
 {
-
 	minefield->Update();
+	mines_left->SetValue(MINE_COUNT - minefield->GetFlaggedCellsCount());
+	mines_left->Update();
 }
 
 void Game::Application::Render(void) const noexcept
@@ -48,12 +49,15 @@ void Game::Application::LoadResources(void) const noexcept
 	resources->gTextures.Add("cells", new Texture("Media/cells.png"));
 	resources->gTextures.Add("button", new Texture("Media/button.png"));
 	resources->gTextures.Add("field", new Texture("Media/field.png"));
+	resources->gTextures.Add("digits", new Texture("Media/digits.png"));
 }
 
 Game::Application::~Application(void) noexcept
 {
 	delete reset_button;
 	delete minefield;
+	delete mines_left;
+	delete timerDisplay;
 
 	Resources::Get()->ReleaseResources();
 
@@ -144,7 +148,11 @@ void Game::Application::InitializeGameplayRelated(void)
 
 	reset_button = new Button({ 0, 1, 24, 24 }, button_position, 1.0f);
 
+	mines_left = new NumberDisplay(MINE_COUNT, { 34, 32, 78, 46 });
+	timerDisplay = new NumberDisplay(0, { 892, 32, 78, 46 });
+
 	minefield = new Minefield();
 	minefield->SetPositionInWindow(SDL_Point{ 24, 110 });
 	minefield->RegisterResetButton(reset_button);
+	minefield->RegisterTimerDisplay(timerDisplay);
 }

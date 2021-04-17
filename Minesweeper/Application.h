@@ -15,6 +15,7 @@
 #include "Exception.h"
 #include "Minefield.h"
 #include "Button.h"
+#include "NumberDisplay.h"
 
 namespace Game
 {
@@ -22,8 +23,11 @@ namespace Game
 	{
 	private:
 		SDL_Window* mWindow = nullptr;
+
 		Minefield* minefield = nullptr;
 		Button* reset_button = nullptr;
+		NumberDisplay* mines_left = nullptr;
+		NumberDisplay* timerDisplay = nullptr;
 
 	private:
 		void Update(void) const noexcept;

@@ -77,7 +77,6 @@ Game::Button::Button(SDL_Rect clip, SDL_Rect button_rect, float scale) noexcept
 
 	this->clip = clip;
 	this->scale = scale;
-
 }
 
 void Game::Button::SetClip(SDL_Rect new_clip)
