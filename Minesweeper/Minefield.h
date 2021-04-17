@@ -26,7 +26,7 @@ namespace Game
 		bool is_left_mouse_clicked  = false;
 		bool game_over = false;
 
-		SDL_Rect cell_clips[10];
+		SDL_Rect cell_clips[11];
 		SDL_Point window_position = { 0, 0 };
 		SDL_Rect game_over_mine;
 

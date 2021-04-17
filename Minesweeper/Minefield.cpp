@@ -4,6 +4,7 @@
 #include "Resources.h"
 #include "Renderer.h"
 
+#define FALSE_FLAG 10
 #define MINE 9
 #define EMPTY 0
 
@@ -82,7 +83,8 @@ void Game::Minefield::SetPositionInWindow(const SDL_Point point)
 
 void Game::Minefield::Update(void)
 {
-	HandleMouseClick();
+	if (!game_over)
+		HandleMouseClick();
 	Renderer::Get()->SubmitToRender(this);
 }
 
@@ -93,13 +95,6 @@ void Game::Minefield::HandleMouseClick(void)
 
 	HandleLeftMouseClick(mouse_state, mouse_pos);
 	HandleRightMouseClick(mouse_state, mouse_pos);
-}
-
-#include <thread>
-
-void thr(Game::Minefield* obj, SDL_Point clicked_point)
-{
-	obj->OpenCell(clicked_point.x, clicked_point.y);
 }
 
 void Game::Minefield::HandleLeftMouseClick(Uint32 mouse_state, SDL_Point mouse_pos)
@@ -118,14 +113,17 @@ void Game::Minefield::HandleLeftMouseClick(Uint32 mouse_state, SDL_Point mouse_p
 		{
 			Cell& clicked_cell = cells[clicked_cell_point.x][clicked_cell_point.y];
 
-			if (clicked_cell.value == MINE && !clicked_cell.is_flagged)
+			if (!clicked_cell.is_flagged)
 			{
-				DoGameOver(clicked_cell_point);
-			}
+				if (clicked_cell.value == MINE)
+				{
+					DoGameOver(clicked_cell_point);
+				}
 
-			else if (!clicked_cell.is_flagged)
-			{
-				OpenCell(clicked_cell_point.x, clicked_cell_point.y);
+				else
+				{
+					OpenCell(clicked_cell_point.x, clicked_cell_point.y);
+				}
 			}
 		}
 	}
@@ -140,6 +138,9 @@ void Game::Minefield::DoGameOver(SDL_Point mine_position)
 	{
 		for (uint16_t j = 0; j < MINEFIELD_COLUMNS; ++j)
 		{
+			if (cells[i][j].is_flagged && cells[i][j].value != MINE)
+				cells[i][j].value = FALSE_FLAG;
+
 			cells[i][j].is_opened = true;
 		}
 	}
@@ -281,8 +282,11 @@ Game::Minefield::Minefield(void)
 void Game::Minefield::InitializeCellClips(void)
 {
 	cell_clips[0] = { 0,0,0,0 }; //unused
+	cell_clips[MINE] = { 85, 1, 16, 16 };
+	cell_clips[FALSE_FLAG] = { 119, 1, 16, 16 };
 
 	for (int i = 1; i <= 8; ++i)
 		cell_clips[i] = { 16 * (i - 1) + i - 1, 18, 16, 16 };
-	cell_clips[MINE] = { 85, 1, 16, 16 };
+
+	
 }
