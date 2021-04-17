@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include <Windows.h>
+
 int main(int argc, char* argv[])
 {
 	Game::Application app;
@@ -8,8 +10,8 @@ int main(int argc, char* argv[])
 		app.Loop();
 	}
 	catch (std::exception& e) {
-		puts(e.what());
-	}
+		MessageBoxA(NULL, e.what(), "Error", MB_OK | MB_ICONERROR);
+	} 
 
 	return 0;
 }

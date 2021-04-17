@@ -25,8 +25,8 @@ Game::Texture::~Texture(void)
 bool NODISCARD Game::Texture::LoadFromFile(const char* path) noexcept
 {
 	Free();
-	SDL_Surface* loaded_surface = IMG_Load(path);
 
+	SDL_Surface* loaded_surface = IMG_Load(path);
 	AssertLoadedSurface(loaded_surface, path);
 	mTexture = GetTextureFromLoadedSurface(loaded_surface, path);
 
