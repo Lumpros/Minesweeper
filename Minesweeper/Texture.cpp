@@ -9,7 +9,7 @@ Game::Texture::Texture(void) noexcept
 	mWidth = mHeight = 0;
 }
 
-Game::Texture::Texture(const char* path) noexcept
+Game::Texture::Texture(const char* path)
 {
 	if (!LoadFromFile(path)) {
 		const std::string message = "Failed to load ";

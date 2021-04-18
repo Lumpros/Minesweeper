@@ -48,7 +48,7 @@ void Game::NumberDisplay::RenderNumber(char* buffer, size_t len)
 {
 	const int digit_width = display_rect.w / 3;
 
-	for (signed int i = 0; i < len; ++i)
+	for (size_t i = 0; i < len; ++i)
 	{
 		int clip_index;
 

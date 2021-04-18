@@ -20,7 +20,7 @@ namespace Game
 		SDL_Texture* GetTextureFromLoadedSurface(SDL_Surface*, const std::string&);
 
 	public:
-		explicit Texture(const char* path) noexcept;
+		explicit Texture(const char* path);
 		Texture(void) noexcept;
 		~Texture(void) noexcept;
 
