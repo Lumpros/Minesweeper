@@ -78,6 +78,7 @@ namespace Game
 		void FlagUnopenedCells(void);
 		
 		bool PlayerHasWon(void);
+		bool IsHoldingLeftMouseOverCell(uint16_t row, uint16_t column, SDL_Point clicked_cell);
 
 	public:
 		Minefield(void);

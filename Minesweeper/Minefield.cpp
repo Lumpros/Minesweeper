@@ -277,26 +277,28 @@ void Game::Minefield::RenderMinefieldCells(void)
 	{
 		for (uint16_t column = 0; column < MINEFIELD_COLUMNS; ++column)
 		{
-			/* Hold down mouse = dont render button until mouse is released */
-			if (!cells[row][column].is_opened && !cells[row][column].is_flagged)
+			if (IsHoldingLeftMouseOverCell(row, column, clicked_cell))
 			{
-				if (is_left_mouse_clicked && clicked_cell.x == row && clicked_cell.y == column)
-				{
-					continue;
-				}
+				cells_texture->Render(CalculateCellWindowRect(row, column), &cell_clips[EMPTY]);
 			}
 
-			RenderCell(row, column);
+			else
+			{
+				RenderCell(row, column);
+			}
 		}
 	}
+}
+
+bool Game::Minefield::IsHoldingLeftMouseOverCell(uint16_t row, uint16_t column, SDL_Point clicked_cell)
+{
+	return !cells[row][column].is_opened && !cells[row][column].is_flagged
+		&& is_left_mouse_clicked && clicked_cell.x == row && clicked_cell.y == column;
 }
 
 void Game::Minefield::RenderCell(uint16_t row, uint16_t column)
 {
 	Cell& cell = cells[row][column];
-
-	if (cell.value == EMPTY && cell.is_opened)
-		return;
 
 	SDL_Rect clip = cell_clips[cell.value];
 
@@ -334,7 +336,7 @@ Game::Minefield::Minefield(void)
 
 void Game::Minefield::InitializeCellClips(void)
 {
-	cell_clips[0] = { 0,0,0,0 }; //unused
+	cell_clips[EMPTY] = { 17, 1, 16, 16 }; //unused
 	cell_clips[MINE] = { 85, 1, 16, 16 };
 	cell_clips[FALSE_FLAG] = { 119, 1, 16, 16 };
 
