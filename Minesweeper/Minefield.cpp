@@ -441,4 +441,6 @@ void Game::Minefield::FlagUnopenedCells(void)
 			}
 		}
 	}
+
+	cells_flagged = MINE_COUNT;
 }
