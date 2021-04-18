@@ -25,7 +25,7 @@ void Timer::Update(void)
 
 		if (millisecondsSinceLastCall >= 1000)
 		{
-			millisecondsSinceLastCall = 0;
+			millisecondsSinceLastCall -= 1000;
 			++total_seconds_passed;
 		}
 	}
